@@ -13,15 +13,15 @@
             <table border="1" cellpadding="10">
                 <thead>
                     <tr>
+                        <th>CameraName</th>
                         <th>SerialNumber</th>
-                        <th>VideoDevice</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for row in data %}
                     <tr>
-                        <td>{{row.serial_number}}</td>
-                        <td>{{row.video_device}}</td>
+                        <td>{{row.CameraName}}</td>
+                        <td>{{row.SerialNumber}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -30,7 +30,7 @@
         {% else %}
             <p> Click the button below to view the table </p>
             <form method="post">
-                <button type="submit">View Table</button>
+                <button type="submit">Start Calibration</button>
             </form>
         {% endif %}
     </body>
