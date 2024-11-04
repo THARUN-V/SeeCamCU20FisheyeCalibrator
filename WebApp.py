@@ -1,5 +1,5 @@
 from CamContext import *
-from flask import Flask
+from flask import Flask , render_template , request
 
 class WebApp(CamContext):
     
@@ -14,9 +14,13 @@ class WebApp(CamContext):
         
     def setup_routes(self):
         
-        @self.app.route("/")
+        @self.app.route("/",methods = ["GET","POST"])
         def home():
-            return "Hello, World"
+            cam_table = list()
+            if request.method == "POST":
+                for cam in self.cams:
+                    cam_table.append({"serial_number":cam.serial_number,"video_device":cam.camera_index})
+            return render_template("index.html",data=cam_table)
         
     def run(self):
         self.app.run(debug=True,use_reloader=False)

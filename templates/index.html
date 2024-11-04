@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>Home and Table</title>
+    </head>
+    <body>
+        <h1>Welcome to My Flask App</h1>
+
+        {% if data %}
+            <h2>Data Table</h2>
+            <table border="1" cellpadding="10">
+                <thead>
+                    <tr>
+                        <th>SerialNumber</th>
+                        <th>VideoDevice</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td>{{row.serial_number}}</td>
+                        <td>{{row.video_device}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{url_for('home')}}"> Go Back </a>
+        {% else %}
+            <p> Click the button below to view the table </p>
+            <form method="post">
+                <button type="submit">View Table</button>
+            </form>
+        {% endif %}
+    </body>
+</html>
+
