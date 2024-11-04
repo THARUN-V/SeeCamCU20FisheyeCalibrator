@@ -55,4 +55,4 @@ class CamContext:
             for cam in self.connected_cams:
                 table.add_row([cam.serial_number,cam.camera_index])
             
-        print(table)
+            print(table)

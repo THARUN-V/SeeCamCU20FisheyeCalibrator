@@ -1,7 +1,6 @@
-from CamContext import *
+from WebApp import *
 
-see_cams = CamContext()
-
-see_cams.get_seecam()
-
-see_cams.print_seecam()
+if __name__ == "__main__":
+    
+    CalibObj = WebApp()
+    CalibObj.run()
