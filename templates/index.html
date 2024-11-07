@@ -6,6 +6,7 @@
         <title>Home and Table</title>
         <script>
             async function handleButtonClick(SerialNumber) {
+                
                 try {
                     // Send a request to the server with the SerialNumber
                     const response = await fetch('/process',{
@@ -16,10 +17,30 @@
                         body : JSON.stringify({SerialNumber: SerialNumber}),
                     });
 
-                    const result = await response.text();
+                    const result = await response.json();
+                    console.log(response)
+                    // // Replace the entire page content with the new content
+                    // document.body.innerHTML = result;
+                    if (response.ok){
+        
+                        // // Update the page to reflect the processed result
+                        // document.getElementById('button-${SerialNumber}').style.display = 'none'; // Hide button
+                        // document.getElementById('message-${SerialNumber}').style.display = 'inline'; // show message
 
-                    // Replace the entire page content with the new content
-                    document.body.innerHTML = result;
+                        // Hide the button for the processed SerialNumber
+                        const buttonElement = document.getElementById(`button-${SerialNumber}`);
+                        const messageElement = document.getElementById(`message-${SerialNumber}`);
+
+                        if (buttonElement && messageElement){
+                            buttonElement.style.display = 'none'; // Hide the button
+                            messageElement.style.display = 'inline'; // show the success message
+                        } else {
+                            console.error(`Elements with IDs button-${SerialNumber} or message-${SerialNumber} not found.`);
+                        }
+                    } else {
+                        alert('Error during processing : '+ result.message)
+                    }
+
                 }catch (error) {
                     console.error("Error processing row :",error);
                     document.body.innerHTML = "<p>Error! Unable to process the request. </p>"
@@ -47,7 +68,11 @@
                         <td>{{row.SerialNumber}}</td>
                         <td>
                             <!-- Button to start the process and replace page content with the result-->
-                            <button onclick="handleButtonClick('{{row.SerialNumber}}')">Start Calibration</button>
+                            <!-- <button onclick="handleButtonClick('{{row.SerialNumber}}')">Start Calibration</button> -->
+                            <button id="button-{{row.SerialNumber}}" onclick="handleButtonClick('{{row.SerialNumber}}')">
+                                StartCalibration
+                            </button>
+                            <span id="message-{{row.SerialNumber}}" style="display:none;"> Processing Completed </span>
                         </td>
                     </tr>
                     {% endfor %}

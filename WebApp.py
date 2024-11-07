@@ -15,6 +15,9 @@ class WebApp(CamContext):
         # json path
         self.json_path = "CameraStartUpJson.json"
         
+        # variable to keep track and update table
+        self.data = self.update_cam_details()
+        
     def update_cam_details(self):
         """
         opens camera startup json, check which camera id belongs to front,right and left.
@@ -43,46 +46,70 @@ class WebApp(CamContext):
             
             DeviceIdWithCamName = list(zip(["Front","Right","Left"],SortedDeviceId))
             
-            return [{"CameraName":cam_details[0],"SerialNumber":cam_details[1].split(" ")[0]} for cam_details in DeviceIdWithCamName]
+            return [{"CameraName":cam_details[0],"SerialNumber":cam_details[1].split(" ")[0],"processed":False} for cam_details in DeviceIdWithCamName]
             
             
     def setup_routes(self):
         
         @self.app.route("/",methods = ["GET","POST"])
         def home():
-            cam_table = list()
+            # cam_table = list()
             if request.method == "POST":
                 
                 # self.update_cam_property()
                 
                 # for cam in self.get_seecam():
                 #     cam_table.append({"serial_number":cam.serial_number,"video_device":cam.camera_index})
-                cam_table = self.update_cam_details()
-            return render_template("index.html",data=cam_table)
+                # cam_table = self.update_cam_details()
+                # print(cam_table)
+                return render_template("index.html",data=self.data)
+            
+            else:
+                return render_template("index.html")
         
         @self.app.route('/process',methods = ['POST'])
         def process():
-            # Get the SerialNumber fromt the request
-            serial_number = request.json.get("SerialNumber")
-            if serial_number is None:
-                return "<p>Error : No Serial Number provided. </p>", 400
+            # # Get the SerialNumber fromt the request
+            # serial_number = request.json.get("SerialNumber")
+            # if serial_number is None:
+            #     return "<p>Error : No Serial Number provided. </p>", 400
             
-            # Find the specific row data based on SerialNumber
-            # row_data = next((row for row in data if row["SerialNumber"] == serial_number),None)
-            # if not row_data:
-            #     return "<p> Error : Serial Number not found. </p>", 400
+            # # Find the specific row data based on SerialNumber
+            # # row_data = next((row for row in data if row["SerialNumber"] == serial_number),None)
+            # # if not row_data:
+            # #     return "<p> Error : Serial Number not found. </p>", 400
             
-            # Simulate processing and generate new HTML content
-            # Replace this with actual processing logic as needed.
-            # processed_message = f"Processing complete for {row_data['CameraName']} with Serial Number {row_data['SerialNumber']}."
-            processed_message = f"Processing complete for {serial_number}."
+            # # Simulate processing and generate new HTML content
+            # # Replace this with actual processing logic as needed.
+            # # processed_message = f"Processing complete for {row_data['CameraName']} with Serial Number {row_data['SerialNumber']}."
+            # processed_message = f"Processing complete for {serial_number}."
 
-            # Return the processed result as HTML content
-            return f"""
-            <h1>Process Result</h1>
-            <p>{processed_message}</p>
-            <a href="{url_for('home')}">Go Back</a>
-            """
+            # # Return the processed result as HTML content
+            # return f"""
+            # <h1>Process Result</h1>
+            # <p>{processed_message}</p>
+            # <a href="{url_for('home')}">Go Back</a>
+            # """
+            
+            
+            try:
+                # Get the data from the request body
+                request_data = request.get_json()
+                serial_number = request_data.get("SerialNumber")
+                
+                # Find the row in the data list
+                row_data = next((row for row in self.data if row["SerialNumber"] == serial_number),None)
+                
+                if row_data:
+                    # simulate processing here (e.g perform calibration)
+                    row_data["processed"] = True
+                    # Return a success response to the frontend
+                    return jsonify({"message":"Processing completed successfullty"}),200
+                else:
+                    return jsonify({"message":"Serial Number not found."}),404
+            except Exception as e:
+                # In case of an error, return an error message
+                return jsonify({"message":f"Error during processing : {str(e)}"}) , 500
         
     def run(self):
         self.app.run(debug=True,use_reloader=False)
