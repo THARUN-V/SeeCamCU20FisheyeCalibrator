@@ -1,5 +1,5 @@
 from CamContext import *
-from flask import Flask , render_template , request
+from flask import Flask , render_template , request , jsonify , url_for
 import json
 import re
 
@@ -59,6 +59,30 @@ class WebApp(CamContext):
                 #     cam_table.append({"serial_number":cam.serial_number,"video_device":cam.camera_index})
                 cam_table = self.update_cam_details()
             return render_template("index.html",data=cam_table)
+        
+        @self.app.route('/process',methods = ['POST'])
+        def process():
+            # Get the SerialNumber fromt the request
+            serial_number = request.json.get("SerialNumber")
+            if serial_number is None:
+                return "<p>Error : No Serial Number provided. </p>", 400
+            
+            # Find the specific row data based on SerialNumber
+            # row_data = next((row for row in data if row["SerialNumber"] == serial_number),None)
+            # if not row_data:
+            #     return "<p> Error : Serial Number not found. </p>", 400
+            
+            # Simulate processing and generate new HTML content
+            # Replace this with actual processing logic as needed.
+            # processed_message = f"Processing complete for {row_data['CameraName']} with Serial Number {row_data['SerialNumber']}."
+            processed_message = f"Processing complete for {serial_number}."
+
+            # Return the processed result as HTML content
+            return f"""
+            <h1>Process Result</h1>
+            <p>{processed_message}</p>
+            <a href="{url_for('home')}">Go Back</a>
+            """
         
     def run(self):
         self.app.run(debug=True,use_reloader=False)

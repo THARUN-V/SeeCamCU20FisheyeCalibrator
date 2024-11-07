@@ -4,6 +4,28 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <title>Home and Table</title>
+        <script>
+            async function handleButtonClick(SerialNumber) {
+                try {
+                    // Send a request to the server with the SerialNumber
+                    const response = await fetch('/process',{
+                        method : 'POST',
+                        headers : {
+                            'Content-Type' : 'application/json',
+                        },
+                        body : JSON.stringify({SerialNumber: SerialNumber}),
+                    });
+
+                    const result = await response.text();
+
+                    // Replace the entire page content with the new content
+                    document.body.innerHTML = result;
+                }catch (error) {
+                    console.error("Error processing row :",error);
+                    document.body.innerHTML = "<p>Error! Unable to process the request. </p>"
+                }
+            }
+        </script>
     </head>
     <body>
         <h1>Welcome to My Flask App</h1>
@@ -15,6 +37,7 @@
                     <tr>
                         <th>CameraName</th>
                         <th>SerialNumber</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -22,6 +45,10 @@
                     <tr>
                         <td>{{row.CameraName}}</td>
                         <td>{{row.SerialNumber}}</td>
+                        <td>
+                            <!-- Button to start the process and replace page content with the result-->
+                            <button onclick="handleButtonClick('{{row.SerialNumber}}')">Start Calibration</button>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
