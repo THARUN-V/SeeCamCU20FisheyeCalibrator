@@ -58,6 +58,8 @@ class WebApp(CamContext):
         
         self.calib_node = SeeCamCalibrationNode()
         
+        self.calibrated = None
+        
     def update_cam_details(self):
         """
         opens camera startup json, check which camera id belongs to front,right and left.
@@ -93,7 +95,7 @@ class WebApp(CamContext):
         
         @self.app.route("/",methods = ["GET","POST"])
         def home():
-            if request.method == "POST":
+            if request.method == "POST" or self.calibrated:
                 return render_template("index.html",data=self.data)
             else:
                 return render_template("index.html")
@@ -154,6 +156,7 @@ class WebApp(CamContext):
                 for row in self.data:
                     if row["SerialNumber"] == serial_number:
                         row["processed"] = True
+                        self.calibrated = True
                         break
                 # Redirect to the main table view
                 return redirect(url_for('home'))

@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calibration Video Feed</title>
+    <title>Video Feed - Camera Calibration</title>
 </head>
 <body>
-
-    <h1>Calibration Video Feed</h1>
-
-    <button onclick="window.location.href = '{{ url_for('table') }}'">Back to Camera Table</button>
-
-    <br><br>
-
-    <img src="{{ url_for('video_feed', serial_number=serial_number) }}" width="640" height="480" alt="Calibration Video Feed">
-
+    <h1>Live Camera Feed</h1>
+    <div>
+        <!-- Display video feed here -->
+        <img src="{{ url_for('video_feed', serial_number=serial_number) }}" width="100%" />
+    </div>
+    <br>
+    <a href="{{ url_for('table') }}">Back to Camera Table</a>
 </body>
 </html>
