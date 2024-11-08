@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Calibration Video Feed</title>
+</head>
+<body>
+    <h1>Calibration Video Feed for Camera Serial Number: {{ serial_number }}</h1>
+
+    <img src="{{ url_for('video_feed', serial_number=serial_number) }}" alt="Video Stream" id="video-stream"
+         style="width:100%; max-width:800px;" onclick="handleClick(event)">
+
+    <script>
+        function handleClick(event) {
+            const x = event.offsetX;
+            const y = event.offsetY;
+
+            // Send the click coordinates along with the SerialNumber to the server
+            fetch('/process_click', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    SerialNumber: "{{ serial_number }}",
+                    x: x,
+                    y: y
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Calibration Completed") {
+                    window.location.href = "/table"; // Redirect back to table page with updated button status
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

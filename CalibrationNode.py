@@ -39,8 +39,8 @@ class CalibrationNode():
     # need to modify this function to fetch image from camer capture class
     def queue_monocular(self):
         cap = cv2.VideoCapture(self._cam_index)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH,960)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT,540)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH,640)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT,480)
         
         while cap.isOpened():
             ret,frame = cap.read()

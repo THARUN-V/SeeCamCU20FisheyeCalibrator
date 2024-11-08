@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calibration Table - V2</title>
+</head>
+<body>
+    <h1>Camera Calibration Table</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Camera Name</th>
+                <th>Serial Number</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                <td>{{ row.CameraName }}</td>
+                <td>{{ row.SerialNumber }}</td>
+                <td>
+                    <form action="/start_calibration/{{ row.SerialNumber }}" method="get">
+                        <button type="submit">Start Calibration</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
