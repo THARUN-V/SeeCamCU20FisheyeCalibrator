@@ -116,31 +116,6 @@ class WebApp(CamContext):
                     
                     see_cam = {cam.serial_number : cam.camera_index for cam in self.get_seecam()}
                     
-                    """
-                    boards = [ChessboardInfo(6,4,0.04)]
-                    calib_flags = 0
-                    fisheye_calib_flags = 0
-                    checkerboard_flags = cv2.CALIB_CB_FAST_CHECK
-                    
-                    node = OpenCVCalibrationNode(boards,
-                                                 calib_flags,
-                                                 fisheye_calib_flags,
-                                                 checkerboard_flags = checkerboard_flags,
-                                                 max_chessboard_speed = -1.0,
-                                                 queue_size = 1,
-                                                 cam_index = see_cam[row_data["SerialNumber"]])
-                    
-                    while True:
-                        if node.queue_display.qsize() > 0:
-                            cv2.imshow("--------",node.queue_display.get())
-                            if cv2.waitKey(1) & 0xff == ord("q"):
-                                cv2.destroyAllWindows()
-                                # simulate processing here (e.g perform calibration)
-                                row_data["processed"] = True
-                                # Return a success response to the frontend
-                                return jsonify({"message":"Processing completed successfullty"}),200
-                    """
-                    
                     self.calib_node.initialize_calibration_node(see_cam[row_data["SerialNumber"]])
                     
                     row_data["processed"] = True
