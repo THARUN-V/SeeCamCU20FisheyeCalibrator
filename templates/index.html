@@ -1,101 +1,94 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <title>Home and Table</title>
-        <script>
-            async function handleButtonClick(SerialNumber) {
-                
-                try {
-                    // Send a request to the server with the SerialNumber
-                    const response = await fetch('/process',{
-                        method : 'POST',
-                        headers : {
-                            'Content-Type' : 'application/json',
-                        },
-                        body : JSON.stringify({SerialNumber: SerialNumber}),
-                    });
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Home and Table</title>
+    <script>
+        async function handleButtonClick(SerialNumber) {
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ SerialNumber: SerialNumber }),
+                });
 
-                    const result = await response.json();
-                    console.log(response)
-                    // // Replace the entire page content with the new content
-                    // document.body.innerHTML = result;
-                    if (response.ok){
-        
-                        // // Update the page to reflect the processed result
-                        // document.getElementById('button-${SerialNumber}').style.display = 'none'; // Hide button
-                        // document.getElementById('message-${SerialNumber}').style.display = 'inline'; // show message
+                const result = await response.json();
 
-                        // Hide the button for the processed SerialNumber
-                        const buttonElement = document.getElementById(`button-${SerialNumber}`);
-                        const messageElement = document.getElementById(`message-${SerialNumber}`);
-
-                        if (buttonElement && messageElement){
-                            buttonElement.style.display = 'none'; // Hide the button
-                            messageElement.style.display = 'inline'; // show the success message
-                        } else {
-                            console.error(`Elements with IDs button-${SerialNumber} or message-${SerialNumber} not found.`);
-                        }
-                        // Display the video stream below the table for the selected SerialNumber
-                        const videoStreamContainer = document.getElementById('video-stream-container');
-                        videoStreamContainer.innerHTML = `
-                            <h3>Video Stream for Serial Number: ${SerialNumber}</h3>
-                            <img src="/video_feed" alt="Video Stream" style="width: 100%; max-width: 640px; height: auto;">
-                        `;
-                    } else {
-                        alert('Error during processing : '+ result.message)
-                    }
-
-                }catch (error) {
-                    console.error("Error processing row :",error);
-                    document.body.innerHTML = "<p>Error! Unable to process the request. </p>"
+                if (response.ok) {
+                    // Display video stream on a blank page
+                    document.body.innerHTML = `
+                        <h2>Video Stream for Serial Number: ${SerialNumber}</h2>
+                        <img src="/video_feed" alt="Video Stream" style="width:100%; max-width:800px;" onclick="handleImageClick(event, '${SerialNumber}')"/>
+                    `;
+                } else {
+                    alert('Error during processing: ' + result.message);
                 }
+            } catch (error) {
+                console.error("Error processing row:", error);
+                document.body.innerHTML = "<p>Error! Unable to process the request. </p>";
             }
-        </script>
-    </head>
-    <body>
-        <h1>Welcome to My Flask App</h1>
+        }
 
-        {% if data %}
-            <h2>Data Table</h2>
-            <table border="1" cellpadding="10">
-                <thead>
-                    <tr>
-                        <th>CameraName</th>
-                        <th>SerialNumber</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in data %}
-                    <tr>
-                        <td>{{row.CameraName}}</td>
-                        <td>{{row.SerialNumber}}</td>
-                        <td>
-                            <!-- Button to start the process and replace page content with the result-->
-                            <!-- <button onclick="handleButtonClick('{{row.SerialNumber}}')">Start Calibration</button> -->
-                            <button id="button-{{row.SerialNumber}}" onclick="handleButtonClick('{{row.SerialNumber}}')">
-                                StartCalibration
-                            </button>
-                            <span id="message-{{row.SerialNumber}}" style="display:none;"> Processing Completed </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <a href="{{url_for('home')}}"> Go Back </a>
-        {% else %}
-            <p> Click the button below to view the table </p>
-            <form method="post">
-                <button type="submit">Start Calibration</button>
-            </form>
-        {% endif %}
+        // Capture click coordinates and send them to the server
+        async function handleImageClick(event, SerialNumber) {
+            const x = event.offsetX;
+            const y = event.offsetY;
 
-        <!-- Container for video stream -->
-        <div id="video-stream-container" style="margin-top: 20px;">
-            <!-- The video stream will appear here -->
-        </div>
-    </body>
+            // Send coordinates to the server for processing
+            try {
+                const response = await fetch('/process_click', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ SerialNumber: SerialNumber, x: x, y: y }),
+                });
+
+                if (response.redirected) {
+                    window.location.href = response.url; // Redirect to updated table page
+                }
+            } catch (error) {
+                console.error("Error sending click coordinates:", error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Welcome to My Flask App</h1>
+
+    {% if data %}
+        <h2>Data Table</h2>
+        <table border="1" cellpadding="10">
+            <thead>
+                <tr>
+                    <th>CameraName</th>
+                    <th>SerialNumber</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>{{ row.CameraName }}</td>
+                    <td>{{ row.SerialNumber }}</td>
+                    <td>
+                        <button id="button-{{ row.SerialNumber }}" onclick="handleButtonClick('{{ row.SerialNumber }}')">
+                            Start Calibration
+                        </button>
+                        <span id="message-{{ row.SerialNumber }}" style="display:none;">Processing Completed</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Click the button below to view the table</p>
+        <form method="post">
+            <button type="submit">Start Calibration</button>
+        </form>
+    {% endif %}
+</body>
 </html>
-

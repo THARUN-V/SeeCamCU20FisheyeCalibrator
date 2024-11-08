@@ -1,5 +1,5 @@
 from CamContext import *
-from flask import Flask , render_template , request , jsonify , url_for , Response
+from flask import Flask , render_template , request , jsonify , url_for , Response , redirect
 import json
 import re
 
@@ -118,6 +118,7 @@ class WebApp(CamContext):
                     
                     self.calib_node.initialize_calibration_node(see_cam[row_data["SerialNumber"]])
                     
+                    
                     row_data["processed"] = True
                     # Return a success response to the frontend
                     return jsonify({"message":"Processing completed successfullty"}),200
@@ -133,6 +134,32 @@ class WebApp(CamContext):
         def video_feed():
             return Response(self.calib_node.generate_frames(),
                             mimetype='multipart/x-mixed-replace; boundary=frame')
+            
+        @self.app.route('/process_click', methods=['POST'])
+        def process_click():
+            data_json = request.get_json()
+            serial_number = data_json.get("SerialNumber")
+            x = data_json.get("x")
+            y = data_json.get("y")
+
+            # Define target area for successful calibration (e.g., coordinates within 100x100 pixels box)
+            target_x_min = 50
+            target_x_max = 150
+            target_y_min = 50
+            target_y_max = 150
+
+            # Check if the click is within the target area
+            if target_x_min <= x <= target_x_max and target_y_min <= y <= target_y_max:
+                # Update processed status in data for the specified SerialNumber
+                for row in self.data:
+                    if row["SerialNumber"] == serial_number:
+                        row["processed"] = True
+                        break
+                # Redirect to the main table view
+                return redirect(url_for('home'))
+            
+            # If click is outside the target area, do nothing
+            return jsonify({"message": "Click outside target area"}), 200
             
         
     def run(self):
