@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Home and Table</title>
+    <title>FisheyeCalibrator</title>
     <script>
-        async function handleButtonClick(SerialNumber) {
+        async function handleButtonClick(SerialNumber,CameraName) {
             try {
                 const response = await fetch('/process', {
                     method: 'POST',
@@ -20,7 +20,7 @@
                 if (response.ok) {
                     // Display video stream on a blank page
                     document.body.innerHTML = `
-                        <h2>Video Stream for Serial Number: ${SerialNumber}</h2>
+                        <h2>Video Stream for ${CameraName} Cam with Serial Number: ${SerialNumber}</h2>
                         <img src="/video_feed" alt="Video Stream" style="width:100%; max-width:800px;" onclick="handleImageClick(event, '${SerialNumber}')"/>
                     `;
                 } else {
@@ -63,16 +63,16 @@
     </script>
 </head>
 <body>
-    <h1>Welcome to My Flask App</h1>
+    <h1>SeeCamCU20 Fisheye Calibrator</h1>
 
     {% if data %}
-        <h2>Data Table</h2>
+        <h2>---------- Conncected Cameras ----------</h2>
         <table border="1" cellpadding="10">
             <thead>
                 <tr>
                     <th>CameraName</th>
                     <th>SerialNumber</th>
-                    <th>Action</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -84,7 +84,7 @@
                         {% if row.processed %}
                             <span id="message-{{ row.SerialNumber }}">Calibrated</span>
                         {% else %}
-                            <button id="button-{{ row.SerialNumber }}" onclick="handleButtonClick('{{ row.SerialNumber }}')">
+                            <button id="button-{{ row.SerialNumber }}" onclick="handleButtonClick('{{ row.SerialNumber }}','{{row.CameraName}}')">
                                 Start Calibration
                             </button>
                             <span id="message-{{ row.SerialNumber }}" style="display:none;">Processing Completed</span>
