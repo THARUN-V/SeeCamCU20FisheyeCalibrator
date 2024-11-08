@@ -37,6 +37,12 @@
                         } else {
                             console.error(`Elements with IDs button-${SerialNumber} or message-${SerialNumber} not found.`);
                         }
+                        // Display the video stream below the table for the selected SerialNumber
+                        const videoStreamContainer = document.getElementById('video-stream-container');
+                        videoStreamContainer.innerHTML = `
+                            <h3>Video Stream for Serial Number: ${SerialNumber}</h3>
+                            <img src="/video_feed" alt="Video Stream" style="width: 100%; max-width: 640px; height: auto;">
+                        `;
                     } else {
                         alert('Error during processing : '+ result.message)
                     }
@@ -85,6 +91,11 @@
                 <button type="submit">Start Calibration</button>
             </form>
         {% endif %}
+
+        <!-- Container for video stream -->
+        <div id="video-stream-container" style="margin-top: 20px;">
+            <!-- The video stream will appear here -->
+        </div>
     </body>
 </html>
 
