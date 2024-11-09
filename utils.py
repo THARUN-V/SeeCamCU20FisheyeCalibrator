@@ -125,11 +125,11 @@ def get_corners(img,board,refine = True , checkerboard_flags = 0):
         for row in range(board.n_rows):
             for col in range(board.n_cols-1):
                 index = row * board.n_rows + col 
-                min_distance = min(min_distance , _pdist(corners[index,0],corners[index+1,0]))
+                min_distance = min(min_distance , pdist(corners[index,0],corners[index+1,0]))
         for row in range(board.n_rows-1):
             for col in range(board.n_cols):
                 index = row*board.n_rows + col 
-                min_distance = min(min_distance,_pdist(corners[index,0],corners[index+board.n_cols,0]))
+                min_distance = min(min_distance,pdist(corners[index,0],corners[index+board.n_cols,0]))
         radius = int(math.ceil(math.ceil(min_distance * 0.5)))
         cv2.cornerSubPix(mono,corners,(radius,radius),(-1,-1),(cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER,30,0.1))
         
