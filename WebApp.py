@@ -60,6 +60,12 @@ class WebApp(CamContext):
         
         self.calibrated = None
         
+        ##### coordinates of CALIBRATE button #######
+        self.CALIBRATE_BUTTON_X_MIN = 693
+        self.CALIBRATE_BUTTON_X_MAX = 799
+        self.CALIBRATE_BUTTON_Y_MIN = 305
+        self.CALIBRATE_BUTTON_Y_MAX = 411
+        
     def update_cam_details(self):
         """
         opens camera startup json, check which camera id belongs to front,right and left.
@@ -145,24 +151,30 @@ class WebApp(CamContext):
             x = data_json.get("x")
             y = data_json.get("y")
             
-            print(f"Mouse Click at X : {x} , y : {y}")
+            # print(f"Mouse Click at X : {x} , y : {y}")
 
-            # Define target area for successful calibration (e.g., coordinates within 100x100 pixels box)
-            target_x_min = 50
-            target_x_max = 150
-            target_y_min = 50
-            target_y_max = 150
+            # # Define target area for successful calibration (e.g., coordinates within 100x100 pixels box)
+            # target_x_min = 50
+            # target_x_max = 150
+            # target_y_min = 50
+            # target_y_max = 150
 
-            # Check if the click is within the target area
-            if target_x_min <= x <= target_x_max and target_y_min <= y <= target_y_max:
-                # Update processed status in data for the specified SerialNumber
-                for row in self.data:
-                    if row["SerialNumber"] == serial_number:
-                        row["processed"] = True
-                        self.calibrated = True
-                        break
-                # Redirect to the main table view
-                return redirect(url_for('home'))
+            # # Check if the click is within the target area
+            # if target_x_min <= x <= target_x_max and target_y_min <= y <= target_y_max:
+            #     # Update processed status in data for the specified SerialNumber
+            #     for row in self.data:
+            #         if row["SerialNumber"] == serial_number:
+            #             row["processed"] = True
+            #             self.calibrated = True
+            #             break
+            #     # Redirect to the main table view
+            #     return redirect(url_for('home'))
+            
+            # if self.CALIBRATE_BUTTON_X_MIN <= x <= self.CALIBRATE_BUTTON_X_MAX and self.CALIBRATE_BUTTON_Y_MIN <= y <= self.CALIBRATE_BUTTON_Y_MAX:
+            #     if self.calib_node.node.c.goodenough:
+            #         print("=================== Calibrate Button Presesed ==================")
+            
+            self.calib_node.node.on_mouse(x,y)
             
             # If click is outside the target area, do nothing
             return jsonify({"message": "Click outside target area"}), 200

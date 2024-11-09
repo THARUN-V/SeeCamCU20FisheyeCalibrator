@@ -78,6 +78,11 @@ class OpenCVCalibrationNode(CalibrationNode):
         # self.initWindow()
         self.image = None
         
+        self.CALIBRATE_BUTTON_X_MIN = 693
+        self.CALIBRATE_BUTTON_X_MAX = 799
+        self.CALIBRATE_BUTTON_Y_MIN = 305
+        self.CALIBRATE_BUTTON_Y_MAX = 411
+        
     def spin(self):
         
         while True:
@@ -107,19 +112,27 @@ class OpenCVCalibrationNode(CalibrationNode):
         return cv2.getTextSize(text,cls.FONT_FACE,cls.FONT_SCALE,cls.FONT_THICKNESS)[0]
     
     
-    def on_mouse(self,event,x,y,flags,param):
-        if event == cv2.EVENT_LBUTTONDOWN and self.displaywidth < x:
+    def on_mouse(self,x,y):
+        if self.CALIBRATE_BUTTON_X_MIN <= x <= self.CALIBRATE_BUTTON_X_MAX and self.CALIBRATE_BUTTON_Y_MIN <= y <= self.CALIBRATE_BUTTON_Y_MAX:
             if self.c.goodenough:
-                if 180 <= y < 280:
-                    print("***** Calibrating ********")
-                    self.c.do_calibration()
-                    self.buttons(self._last_display)
-                    self.queue_display.put(self._last_display)
-            if self.c.calibrated:
-                if 280 <= y < 300:
-                    self.c.do_save()
-                elif 380 <= y < 400:
-                    pass
+                print("***** Calibrating ********")
+                self.c.do_calibration()
+                self.buttons(self._last_display)
+                self.queue_display.put(self._last_display)
+    
+    # def on_mouse(self,event,x,y,flags,param):
+    #     if event == cv2.EVENT_LBUTTONDOWN and self.displaywidth < x:
+    #         if self.c.goodenough:
+    #             if 180 <= y < 280:
+    #                 print("***** Calibrating ********")
+    #                 self.c.do_calibration()
+    #                 self.buttons(self._last_display)
+    #                 self.queue_display.put(self._last_display)
+    #         if self.c.calibrated:
+    #             if 280 <= y < 300:
+    #                 self.c.do_save()
+    #             elif 380 <= y < 400:
+    #                 pass
                 
     def on_model_change(self,model_select_val):
         if self.c == None:
