@@ -148,9 +148,13 @@ class OpenCVCalibrationNode(CalibrationNode):
 
     def buttons(self,display):
         x = self.displaywidth
-        self.button(display[180:280,x:x+100],"CALIBRATE",self.c.goodenough)
-        self.button(display[280:380,x:x+100],"SAVE",self.c.calibrated)
-        self.button(display[380:480,x:x+100],"COMMIT",self.c.calibrated)
+        
+        # self.button(display[180:280,x:x+100],"CALIBRATE",self.c.goodenough)
+        # self.button(display[280:380,x:x+100],"SAVE",self.c.calibrated)
+        # self.button(display[380:480,x:x+100],"COMMIT",self.c.calibrated)
+        
+        self.button(display[280:380,x:x+100],"CALIBRATE",self.c.goodenough)
+        self.button(display[380:480,x:x+100],"NEXT",self.c.calibrated)
         
     def y(self,i):
         """

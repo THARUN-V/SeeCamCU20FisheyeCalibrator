@@ -141,8 +141,11 @@ class WebApp(CamContext):
         def process_click():
             data_json = request.get_json()
             serial_number = data_json.get("SerialNumber")
+        
             x = data_json.get("x")
             y = data_json.get("y")
+            
+            print(f"Mouse Click at X : {x} , y : {y}")
 
             # Define target area for successful calibration (e.g., coordinates within 100x100 pixels box)
             target_x_min = 50
