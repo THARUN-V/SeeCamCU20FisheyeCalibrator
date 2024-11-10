@@ -123,10 +123,6 @@ class WebApp(CamContext):
                 row_data = next((row for row in self.data if row["SerialNumber"] == serial_number),None)
                 
                 if row_data:
-                    # # simulate processing here (e.g perform calibration)
-                    # row_data["processed"] = True
-                    # # Return a success response to the frontend
-                    # return jsonify({"message":"Processing completed successfullty"}),200
                     
                     see_cam = {cam.serial_number : cam.camera_index for cam in self.get_seecam()}
                     
@@ -158,27 +154,6 @@ class WebApp(CamContext):
             y = data_json.get("y")
             
             print(f"Mouse Click at X : {x} , y : {y}")
-
-            # # Define target area for successful calibration (e.g., coordinates within 100x100 pixels box)
-            # target_x_min = 50
-            # target_x_max = 150
-            # target_y_min = 50
-            # target_y_max = 150
-
-            # # Check if the click is within the target area
-            # if target_x_min <= x <= target_x_max and target_y_min <= y <= target_y_max:
-            #     # Update processed status in data for the specified SerialNumber
-            #     for row in self.data:
-            #         if row["SerialNumber"] == serial_number:
-            #             row["processed"] = True
-            #             self.calibrated = True
-            #             break
-            #     # Redirect to the main table view
-            #     return redirect(url_for('home'))
-            
-            # if self.CALIBRATE_BUTTON_X_MIN <= x <= self.CALIBRATE_BUTTON_X_MAX and self.CALIBRATE_BUTTON_Y_MIN <= y <= self.CALIBRATE_BUTTON_Y_MAX:
-            #     if self.calib_node.node.c.goodenough:
-            #         print("=================== Calibrate Button Presesed ==================")
             
             if self.CALIBRATE_BUTTON_X_MIN <= x <= self.CALIBRATE_BUTTON_X_MAX and self.CALIBRATE_BUTTON_Y_MIN <= y <= self.CALIBRATE_BUTTON_Y_MAX:
                 if not self.calib_node.node.c.calibrated:
