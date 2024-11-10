@@ -4,6 +4,8 @@ import json
 import re
 import pickle
 import socket
+import os
+import signal
 
 from CamContext import *
 from CalibrationNode import *
@@ -206,7 +208,30 @@ class WebApp(CamContext):
             
             # If click is outside the target area, do nothing
             return jsonify({"message": "Click outside target area"}), 200
+        
+        @self.app.route("/shutdown",methods = ["POST"])
+        def shutdown():
+            """
+            Endpoint to shutdown the server.
+            """
+            self.shutdown_server()
+            
+            return jsonify({"message" : "Server shutting down ..."})
+        
+    def shutdown_server(self):
+        """
+        Shuts down the Flask development server.
+        """
+        
+        func = request.environ.get("werkzeug.server.shutdown")
+        if func is None:
+            raise RuntimeError("Not running with the Werkzeug Server")
+        func()
+        
+        # pid = os.getpid()  # Get the current process ID
+        # os.kill(pid, signal.SIGTERM)  # Send the termination signal
             
         
     def run(self):
         self.app.run(debug=True,use_reloader=False)
+        

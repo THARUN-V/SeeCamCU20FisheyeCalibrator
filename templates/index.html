@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -94,6 +94,148 @@
                 {% endfor %}
             </tbody>
         </table>
+    {% else %}
+        <p>Click the button below to view the table</p>
+        <form method="post">
+            <button type="submit">Start Calibration</button>
+        </form>
+    {% endif %}
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>FisheyeCalibrator</title>
+    <script>
+        async function handleButtonClick(SerialNumber, CameraName) {
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ SerialNumber: SerialNumber }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Display video stream on a blank page
+                    document.body.innerHTML = `
+                        <h2>Video Stream for ${CameraName} Cam with Serial Number: ${SerialNumber}</h2>
+                        <img src="/video_feed" alt="Video Stream" style="width:100%; max-width:800px;" onclick="handleImageClick(event, '${SerialNumber}')"/>
+                    `;
+                } else {
+                    alert('Error during processing: ' + result.message);
+                }
+            } catch (error) {
+                console.error("Error processing row:", error);
+                document.body.innerHTML = "<p>Error! Unable to process the request. </p>";
+            }
+        }
+
+        // Capture click coordinates and send them to the server
+        async function handleImageClick(event, SerialNumber) {
+            const x = event.offsetX;
+            const y = event.offsetY;
+
+            // Send coordinates to the server for processing
+            try {
+                const response = await fetch('/process_click', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ SerialNumber: SerialNumber, x: x, y: y }),
+                });
+
+                if (response.redirected) {
+                    window.location.href = response.url; // Redirect to updated table page
+                }
+            } catch (error) {
+                console.error("Error sending click coordinates:", error);
+            }
+        }
+
+        function updateButtonToMessage(SerialNumber) {
+            // Hide the button and show the message
+            document.getElementById(`button-${SerialNumber}`).style.display = 'none';
+            document.getElementById(`message-${SerialNumber}`).style.display = 'inline';
+
+            // Check if all cameras are calibrated and display Save Result button if so
+            checkAllCalibrated();
+        }
+
+        function checkAllCalibrated() {
+            // Check if all cameras are calibrated
+            const allCalibrated = Array.from(document.querySelectorAll('span[id^="message-"]'))
+                .every(message => message.style.display === 'inline');
+
+            if (allCalibrated) {
+                // Show Save Result button if all cameras are calibrated
+                document.getElementById('save-result-button').style.display = 'block';
+            }
+        }
+
+        async function saveResultsAndShutdown() {
+            try {
+                const response = await fetch('/shutdown', {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    alert("Results saved. Server is shutting down.");
+                } else {
+                    alert("Error shutting down server.");
+                }
+            } catch (error) {
+                console.error("Error in shutdown request:", error);
+                alert("Error: Unable to shut down the server.");
+            }
+        }
+
+        // Call checkAllCalibrated initially to handle cases where all cameras might already be calibrated on page load
+        window.addEventListener('load', checkAllCalibrated);
+    </script>
+</head>
+<body>
+    <h1>SeeCamCU20 Fisheye Calibrator</h1>
+
+    {% if data %}
+        <h2>---------- Connected Cameras ----------</h2>
+        <table border="1" cellpadding="10">
+            <thead>
+                <tr>
+                    <th>CameraName</th>
+                    <th>SerialNumber</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>{{ row.CameraName }}</td>
+                    <td>{{ row.SerialNumber }}</td>
+                    <td>
+                        {% if row.processed %}
+                            <span id="message-{{ row.SerialNumber }}" style="display:inline;">Calibrated</span>
+                        {% else %}
+                            <button id="button-{{ row.SerialNumber }}" onclick="handleButtonClick('{{ row.SerialNumber }}', '{{ row.CameraName }}')">
+                                Start Calibration
+                            </button>
+                            <span id="message-{{ row.SerialNumber }}" style="display:none;">Processing Completed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Save Result button, initially hidden, will display if all cameras are calibrated -->
+        <button id="save-result-button" style="display:none;" onclick="saveResultsAndShutdown()">Save Result</button>
     {% else %}
         <p>Click the button below to view the table</p>
         <form method="post">
