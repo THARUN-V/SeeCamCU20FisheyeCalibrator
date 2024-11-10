@@ -2,6 +2,8 @@ import numpy as np
 from flask import Flask , render_template , request , jsonify , url_for , Response , redirect
 import json
 import re
+import pickle
+import socket
 
 from CamContext import *
 from CalibrationNode import *
@@ -57,6 +59,9 @@ class WebApp(CamContext):
         
         # initialize seecam class #
         CamContext.__init__(self)
+        
+        # camera count to exit calibration #
+        self.cam_count = len(self.get_seecam())
         
         # json path
         self.json_path = "CameraStartUpJson.json"
@@ -188,8 +193,6 @@ class WebApp(CamContext):
                             "P" : np.ravel(self.calib_node.node.c.P).tolist()
                         }
                     })
-                    
-                    print(json.dumps(self.calibration_result,indent=4))
                     
                     for row in self.data:
                         if row["SerialNumber"] == serial_number:
