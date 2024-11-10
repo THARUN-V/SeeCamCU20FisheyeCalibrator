@@ -12,6 +12,9 @@ class SeeCamCalibrationNode:
         self.node = None
         
     def initialize_calibration_node(self,cam_index):
+        if self.node is not None:
+            self.reset_calibration_node()
+        
         if self.node is None:
             boards = [ChessboardInfo(6,4,0.04)]
             calib_flags = 0
@@ -27,18 +30,22 @@ class SeeCamCalibrationNode:
                                         cam_index = cam_index)
             
     def generate_frames(self):
-        if self.node is not None:
-            while True:
-                if self.node.queue_display.qsize() > 0:
-                    frame = self.node.queue_display.get()
-                    ret, buffer = cv2.imencode('.jpg', frame)
-                    if not ret:
-                        continue
-                    frame = buffer.tobytes()
-                    yield (b'--frame\r\n'
-                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-        
+        try:
+            if self.node is not None:
+                while True:
+                    if self.node.queue_display.qsize() > 0:
+                        frame = self.node.queue_display.get()
+                        ret, buffer = cv2.imencode('.jpg', frame)
+                        if not ret:
+                            continue
+                        frame = buffer.tobytes()
+                        yield (b'--frame\r\n'
+                            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        except AttributeError:
+            pass
+                    
+    def reset_calibration_node(self):
+        self.node = None
 
 
 class WebApp(CamContext):
@@ -115,6 +122,7 @@ class WebApp(CamContext):
         @self.app.route('/process',methods = ['POST'])
         def process():
             try:
+                
                 # Get the data from the request body
                 request_data = request.get_json()
                 serial_number = request_data.get("SerialNumber")
@@ -153,7 +161,7 @@ class WebApp(CamContext):
             x = data_json.get("x")
             y = data_json.get("y")
             
-            print(f"Mouse Click at X : {x} , y : {y}")
+            # print(f"Mouse Click at X : {x} , y : {y}")
             
             if self.CALIBRATE_BUTTON_X_MIN <= x <= self.CALIBRATE_BUTTON_X_MAX and self.CALIBRATE_BUTTON_Y_MIN <= y <= self.CALIBRATE_BUTTON_Y_MAX:
                 if not self.calib_node.node.c.calibrated:
@@ -163,7 +171,6 @@ class WebApp(CamContext):
                     # release the opened camera
                     self.calib_node.node.release()
                     
-                    print("-------------------------------")
                     for row in self.data:
                         if row["SerialNumber"] == serial_number:
                             row["processed"] = True
