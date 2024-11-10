@@ -1,8 +1,9 @@
-from CamContext import *
+import numpy as np
 from flask import Flask , render_template , request , jsonify , url_for , Response , redirect
 import json
 import re
 
+from CamContext import *
 from CalibrationNode import *
 
 
@@ -78,6 +79,10 @@ class WebApp(CamContext):
         self.NEXT_OR_EXIT_BUTTON_X_MAX = 799
         self.NEXT_OR_EXIT_BUTTON_Y_MIN = 414 
         self.NEXT_OR_EXIT_BUTTON_Y_MAX = 516
+        
+        
+        ##### calibration result #####
+        self.calibration_result = dict()
         
     def update_cam_details(self):
         """
@@ -170,6 +175,21 @@ class WebApp(CamContext):
                 if self.calib_node.node.c.calibrated:
                     # release the opened camera
                     self.calib_node.node.release()
+                    
+                    # store the calibration result to save offline 
+                    self.calibration_result.update({
+                        serial_number : {
+                            "model" : self.calib_node.node.c.camera_model.name,
+                            "img_w" : self.calib_node.node.c.size[0],
+                            "img_h" : self.calib_node.node.c.size[1],
+                            "D" : np.ravel(self.calib_node.node.c.distortion).tolist(),
+                            "K" : np.ravel(self.calib_node.node.c.intrinsics).tolist(),
+                            "R" : np.ravel(self.calib_node.node.c.R).tolist(),
+                            "P" : np.ravel(self.calib_node.node.c.P).tolist()
+                        }
+                    })
+                    
+                    print(json.dumps(self.calibration_result,indent=4))
                     
                     for row in self.data:
                         if row["SerialNumber"] == serial_number:
