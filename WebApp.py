@@ -214,9 +214,21 @@ class WebApp(CamContext):
             """
             Endpoint to shutdown the server.
             """
+            # save the calibration result before shutting down
+            self.save_results()
+            
             self.shutdown_server()
             
             return jsonify({"message" : "Server shutting down ..."})
+        
+    def save_results(self):
+        
+        file_name = f"{socket.gethostname()}.pkl"
+        
+        with open(file_name,"wb") as res:
+            pickle.dump(self.calibration_result,res)
+            
+        print(f"===== Calibration Result Saved as {file_name}.pkl =======")
         
     def shutdown_server(self):
         """
