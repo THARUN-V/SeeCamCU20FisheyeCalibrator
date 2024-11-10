@@ -22,6 +22,7 @@ class CalibrationNode():
         self.q_mono = BufferQueue(queue_size)
         
         self.c = None 
+        self.cap = None
         
         self._last_display = None
         
@@ -38,16 +39,19 @@ class CalibrationNode():
     
     # need to modify this function to fetch image from camer capture class
     def queue_monocular(self):
-        cap = cv2.VideoCapture(self._cam_index)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH,640)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT,480)
+        self.cap = cv2.VideoCapture(self._cam_index)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,640)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT,480)
         
-        while cap.isOpened():
-            ret,frame = cap.read()
+        while self.cap.isOpened():
+            ret,frame = self.cap.read()
             if ret:
                 self.q_mono.put(frame)
         
         # self.q_mono.put(msg)
+    
+    def release(self):
+        self.cap.release()
         
     def handle_monocular(self,msg):
         if self.c == None:

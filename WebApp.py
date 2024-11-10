@@ -66,6 +66,12 @@ class WebApp(CamContext):
         self.CALIBRATE_BUTTON_Y_MIN = 305
         self.CALIBRATE_BUTTON_Y_MAX = 411
         
+        ##### coordinate to next or exit button ####
+        self.NEXT_OR_EXIT_BUTTON_X_MIN = 693
+        self.NEXT_OR_EXIT_BUTTON_X_MAX = 799
+        self.NEXT_OR_EXIT_BUTTON_Y_MIN = 414 
+        self.NEXT_OR_EXIT_BUTTON_Y_MAX = 516
+        
     def update_cam_details(self):
         """
         opens camera startup json, check which camera id belongs to front,right and left.
@@ -151,7 +157,7 @@ class WebApp(CamContext):
             x = data_json.get("x")
             y = data_json.get("y")
             
-            # print(f"Mouse Click at X : {x} , y : {y}")
+            print(f"Mouse Click at X : {x} , y : {y}")
 
             # # Define target area for successful calibration (e.g., coordinates within 100x100 pixels box)
             # target_x_min = 50
@@ -174,7 +180,24 @@ class WebApp(CamContext):
             #     if self.calib_node.node.c.goodenough:
             #         print("=================== Calibrate Button Presesed ==================")
             
-            self.calib_node.node.on_mouse(x,y)
+            if self.CALIBRATE_BUTTON_X_MIN <= x <= self.CALIBRATE_BUTTON_X_MAX and self.CALIBRATE_BUTTON_Y_MIN <= y <= self.CALIBRATE_BUTTON_Y_MAX:
+                if not self.calib_node.node.c.calibrated:
+                    self.calib_node.node.on_mouse(x,y)
+            elif self.NEXT_OR_EXIT_BUTTON_X_MIN <= x <= self.NEXT_OR_EXIT_BUTTON_X_MAX and self.NEXT_OR_EXIT_BUTTON_Y_MIN <= y <= self.NEXT_OR_EXIT_BUTTON_Y_MAX:
+                if self.calib_node.node.c.calibrated:
+                    # release the opened camera
+                    self.calib_node.node.release()
+                    
+                    print("-------------------------------")
+                    for row in self.data:
+                        if row["SerialNumber"] == serial_number:
+                            row["processed"] = True
+                            self.calibrated = True
+                            break
+                    # Rediredct to the main tabel view
+                    return redirect(url_for('home'))
+                
+                
             
             # If click is outside the target area, do nothing
             return jsonify({"message": "Click outside target area"}), 200
