@@ -103,8 +103,8 @@
 </body>
 </html> -->
 
-
-<!DOCTYPE html>
+<!-- working template -->
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -234,10 +234,230 @@
             </tbody>
         </table>
 
-        <!-- Save Result button, initially hidden, will display if all cameras are calibrated -->
+        
         <button id="save-result-button" style="display:none;" onclick="saveResultsAndShutdown()">Save Result</button>
     {% else %}
         <p>Click the button below to view the table</p>
+        <form method="post">
+            <button type="submit">Start Calibration</button>
+        </form>
+    {% endif %}
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>FisheyeCalibrator</title>
+    <style>
+        /* General styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4CAF50;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #666;
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+
+        /* Table styling */
+        table {
+            width: 100%;
+            max-width: 800px;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #fff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+
+        td {
+            font-size: 1em;
+        }
+
+        /* Button styling */
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #save-result-button {
+            background-color: #f44336;
+            color: white;
+            margin-top: 20px;
+            display: none; /* Initially hidden */
+        }
+
+        /* Styles for action buttons in the table */
+        button[id^="button-"] {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        button[id^="button-"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Message span for calibrated cameras */
+        span[id^="message-"] {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+    </style>
+    <script>
+        async function handleButtonClick(SerialNumber, CameraName) {
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ SerialNumber: SerialNumber }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.body.innerHTML = `
+                        <h2>Video Stream for ${CameraName} Cam with Serial Number: ${SerialNumber}</h2>
+                        <img src="/video_feed" alt="Video Stream" style="width:100%; max-width:800px;" onclick="handleImageClick(event, '${SerialNumber}')"/>
+                    `;
+                } else {
+                    alert('Error during processing: ' + result.message);
+                }
+            } catch (error) {
+                console.error("Error processing row:", error);
+                document.body.innerHTML = "<p>Error! Unable to process the request. </p>";
+            }
+        }
+
+        async function handleImageClick(event, SerialNumber) {
+            const x = event.offsetX;
+            const y = event.offsetY;
+
+            try {
+                const response = await fetch('/process_click', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ SerialNumber: SerialNumber, x: x, y: y }),
+                });
+
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            } catch (error) {
+                console.error("Error sending click coordinates:", error);
+            }
+        }
+
+        function updateButtonToMessage(SerialNumber) {
+            document.getElementById(`button-${SerialNumber}`).style.display = 'none';
+            document.getElementById(`message-${SerialNumber}`).style.display = 'inline';
+            checkAllCalibrated();
+        }
+
+        function checkAllCalibrated() {
+            const allCalibrated = Array.from(document.querySelectorAll('span[id^="message-"]'))
+                .every(message => message.style.display === 'inline');
+
+            if (allCalibrated) {
+                document.getElementById('save-result-button').style.display = 'block';
+            }
+        }
+
+        async function saveResultsAndShutdown() {
+            try {
+                const response = await fetch('/shutdown', {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    alert("Results saved. Server is shutting down.");
+                } else {
+                    alert("Error shutting down server.");
+                }
+            } catch (error) {
+                console.error("Error in shutdown request:", error);
+                alert("Error: Unable to shut down the server.");
+            }
+        }
+
+        window.addEventListener('load', checkAllCalibrated);
+    </script>
+</head>
+<body>
+    <h1>SeeCamCU20 Fisheye Calibrator</h1>
+
+    {% if data %}
+        <h2>---------- Connected Cameras ----------</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Camera Name</th>
+                    <th>Serial Number</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>{{ row.CameraName }}</td>
+                    <td>{{ row.SerialNumber }}</td>
+                    <td>
+                        {% if row.processed %}
+                            <span id="message-{{ row.SerialNumber }}" style="display:inline;">Calibrated</span>
+                        {% else %}
+                            <button id="button-{{ row.SerialNumber }}" onclick="handleButtonClick('{{ row.SerialNumber }}', '{{ row.CameraName }}')">
+                                Start Calibration
+                            </button>
+                            <span id="message-{{ row.SerialNumber }}" style="display:none;">Processing Completed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button id="save-result-button" onclick="saveResultsAndShutdown()">Save Result</button>
+    {% else %}
+        <!-- <p>Click the button below to view the table</p> -->
         <form method="post">
             <button type="submit">Start Calibration</button>
         </form>
