@@ -354,8 +354,10 @@
                 const result = await response.json();
 
                 if (response.ok) {
+                    const textStyle = 'color: #FF5722;';  // Orange color for both CameraName and SerialNumber
+
                     document.body.innerHTML = `
-                        <h2>Video Stream for ${CameraName} Cam with Serial Number: ${SerialNumber}</h2>
+                        <h2>Video Stream for <span style="${textStyle}">${CameraName}</span> Cam with Serial Number: <span style="${textStyle}">${SerialNumber}</span></h2>
                         <img src="/video_feed" alt="Video Stream" style="width:100%; max-width:800px;" onclick="handleImageClick(event, '${SerialNumber}')"/>
                     `;
                 } else {
@@ -426,7 +428,7 @@
     <h1>SeeCamCU20 Fisheye Calibrator</h1>
 
     {% if data %}
-        <h2>---------- Connected Cameras ----------</h2>
+        <!-- <h2>---------- Connected Cameras ----------</h2> -->
         <table>
             <thead>
                 <tr>
