@@ -62,8 +62,13 @@ class WebApp(CamContext):
         # initialize seecam class #
         CamContext.__init__(self)
         
-        # camera count to exit calibration #
-        self.cam_count = len(self.get_seecam())
+        try:
+            # camera count to exit calibration #
+            self.cam_count = len(self.get_seecam())
+        except TypeError:
+            print("############### NO CAMERAS CONNECTED ###############")
+            sys.exit()
+            
         
         # json path
         self.json_path = "CameraStartUpJson.json"
