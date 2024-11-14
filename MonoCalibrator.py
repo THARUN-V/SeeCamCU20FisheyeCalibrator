@@ -76,7 +76,6 @@ class MonoCalibrator(Calibrator):
             else:
                 self.distortion = dist_coeffs.flat[:5].reshape(-1,1) # plumb bob
         elif self.camera_model == CAMERA_MODEL.FISHEYE:
-            # print("mono fisheye calibration ..")
             self.logger.info("######### Mono Fisheye Calibration #########")
             # WARNING : cv2.fisheye.calibrate wants float64 points
             ipts64 = numpy.asarray(ipts,dtype = numpy.float64)
@@ -260,7 +259,6 @@ class MonoCalibrator(Calibrator):
                 if self.is_good_sample(params,corners,self.last_frame_corners):
                     self.db.append((params,gray))
                     self.good_corners.append((corners,board))
-                    # print(("*** Added sample %d , p_x = %.3f , p_y = %.3f , p_size = %.3f , skew = %.3f"%tuple([len(self.db)]+params)))
                     self.logger.info("### Added sample %d , p_x = %.3f , p_y = %.3f , p_size = %.3f , skew = %.3f ###"%tuple([len(self.db)]+params))
                 
         self.last_frame_corners = corners
@@ -274,7 +272,6 @@ class MonoCalibrator(Calibrator):
     
     def do_calibration(self,dump = False):
         if not self.good_corners:
-            # print("******** Collecting corners for all images! ************")
             self.logger.info("******** Collecting corners for all images! ************")
             images = [i for (p,i) in self.db]
             self.good_corners = self.collect_corners(images)

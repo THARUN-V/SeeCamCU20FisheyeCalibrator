@@ -28,8 +28,6 @@ class SeeCamCalibrationNode():
             self.reset_calibration_node()
         
         if self.node is None:
-            # boards = [ChessboardInfo(6,4,0.04)]
-            # boards = [ChessboardInfo(self.args.chessboard_w,self.args.chessboard_h,self.args.chessboard_sqr_size)]
             boards = [ChessboardInfo(self._chessboard_w,self._chessboard_h,self._chessboard_sqr_size)]
             calib_flags = 0
             fisheye_calib_flags = 0
@@ -248,8 +246,6 @@ class WebApp(CamContext,Params):
         with open(file_name,"wb") as res:
             pickle.dump(self.calibration_result,res)
             
-        # print(f"===== Calibration Result Saved as {file_name}.pkl =======")
-        
         self.logger.info(f"============ Calibration Result Saved as {file_name}.pkl ============")
         
         

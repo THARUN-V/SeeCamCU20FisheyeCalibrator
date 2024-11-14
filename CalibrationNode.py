@@ -47,8 +47,6 @@ class CalibrationNode():
     # need to modify this function to fetch image from camer capture class
     def queue_monocular(self):
         self.cap = cv2.VideoCapture(self._cam_index)
-        # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,640)
-        # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT,480)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,self._img_w)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT,self._img_h)
         
@@ -57,8 +55,6 @@ class CalibrationNode():
             if ret:
                 self.q_mono.put(frame)
         
-        # self.q_mono.put(msg)
-    
     def release(self):
         self.cap.release()
         
@@ -103,7 +99,6 @@ class OpenCVCalibrationNode(CalibrationNode):
         while True:
             if self.queue_display.qsize() > 0:
                 self.image = self.queue_display.get()
-                # cv2.imshow("display",self.image)
             else:
                 time.sleep(0.1)
             k = cv2.waitKey(6) & 0xFF
@@ -130,25 +125,10 @@ class OpenCVCalibrationNode(CalibrationNode):
     def on_mouse(self,x,y):
         if self.CALIBRATE_BUTTON_X_MIN <= x <= self.CALIBRATE_BUTTON_X_MAX and self.CALIBRATE_BUTTON_Y_MIN <= y <= self.CALIBRATE_BUTTON_Y_MAX:
             if self.c.goodenough:
-                # print("***** Calibrating ********")
                 self.logger.info("########## CALIBRATING ##########")
                 self.c.do_calibration()
                 self.buttons(self._last_display)
                 self.queue_display.put(self._last_display)
-    
-    # def on_mouse(self,event,x,y,flags,param):
-    #     if event == cv2.EVENT_LBUTTONDOWN and self.displaywidth < x:
-    #         if self.c.goodenough:
-    #             if 180 <= y < 280:
-    #                 print("***** Calibrating ********")
-    #                 self.c.do_calibration()
-    #                 self.buttons(self._last_display)
-    #                 self.queue_display.put(self._last_display)
-    #         if self.c.calibrated:
-    #             if 280 <= y < 300:
-    #                 self.c.do_save()
-    #             elif 380 <= y < 400:
-    #                 pass
                 
     def on_model_change(self,model_select_val):
         if self.c == None:
@@ -177,11 +157,6 @@ class OpenCVCalibrationNode(CalibrationNode):
 
     def buttons(self,display):
         x = self.displaywidth
-        
-        # self.button(display[180:280,x:x+100],"CALIBRATE",self.c.goodenough)
-        # self.button(display[280:380,x:x+100],"SAVE",self.c.calibrated)
-        # self.button(display[380:480,x:x+100],"COMMIT",self.c.calibrated)
-        
         self.button(display[280:380,x:x+100],"CALIBRATE",self.c.goodenough)
         self.button(display[380:480,x:x+100],"NEXT",self.c.calibrated)
         
