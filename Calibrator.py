@@ -1,5 +1,6 @@
 from utils import *
 import tarfile
+from params import Params
 
 class Calibrator():
     """
@@ -11,6 +12,8 @@ class Calibrator():
                  fisheye_flags = 0,
                  checkerboard_flags = cv2.CALIB_CB_FAST_CHECK,
                  max_chessboard_speed = -1.0):
+        
+        self.params = Params()
 
         # Make sure n_cols > n_rows to agree with OpenCV CB detector outupt
         self._boards = [ChessboardInfo(max(i.n_cols,i.n_rows),min(i.n_cols,i.n_rows),i.dim) for i in boards]
@@ -126,7 +129,8 @@ class Calibrator():
         # For each parameter, judge how much progress has been made toward adequate variation.
         progress = [min((hi - lo)/r,1.0) for (lo,hi,r) in zip(min_params,max_params,self.param_ranges)]
         # If we have lots of samples, allow calibration even if not all parameters are given
-        self.goodenough = (len(self.db) >= 40) or all([p == 1.0 for p in progress])
+        # self.goodenough = (len(self.db) >= 40) or all([p == 1.0 for p in progress])
+        self.goodenough = (len(self.db) >= self.params.args.sample_count) or all([p == 1.0 for p in progress])
         
         return list(zip(self._param_names,min_params,max_params,progress))
     

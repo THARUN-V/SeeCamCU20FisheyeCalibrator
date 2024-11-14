@@ -10,7 +10,7 @@ class Params:
         self.parser.add_argument("--chessboard_h",type=int,default=4,help="No of corners in vertical direction in chessboard. (default = 7)")
         self.parser.add_argument("--chessboard_sqr_size",type=float,default=0.04,help="size of black square in chessborad (in m). (default = 0.04)")
         self.parser.add_argument("--resolution",type=int,default=0,help="resolution of camers. (default : 0 : (640,480)), available resolution 0:(640,480) , 1:(960,540) , 2:(1280,720) , 3:(1280,960) , 4:(1920,1080)")
-        
+        self.parser.add_argument("--sample_count",type=int,default=40,help="Number of images to consider for calibration. (default:40)")
         
         #################### resolution of camera ############################
         self.cam_resolution = {
