@@ -10,7 +10,9 @@ class CalibrationNode():
                  checkerboard_flags = 0,
                  max_chessboard_speed = -1,
                  queue_size = 1,
-                 cam_index = None):
+                 cam_index = None,
+                 img_w = 640,
+                 img_h = 480):
         
         self._boards = boards
         self._calib_flags = flags 
@@ -18,6 +20,8 @@ class CalibrationNode():
         self._checkerboard_flags = checkerboard_flags
         self._max_chessboard_speed = max_chessboard_speed
         self._cam_index = cam_index
+        self._img_w = img_w
+        self._img_h = img_h
         
         self.q_mono = BufferQueue(queue_size)
         
@@ -40,8 +44,10 @@ class CalibrationNode():
     # need to modify this function to fetch image from camer capture class
     def queue_monocular(self):
         self.cap = cv2.VideoCapture(self._cam_index)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,640)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT,480)
+        # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,640)
+        # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT,480)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,self._img_w)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT,self._img_h)
         
         while self.cap.isOpened():
             ret,frame = self.cap.read()

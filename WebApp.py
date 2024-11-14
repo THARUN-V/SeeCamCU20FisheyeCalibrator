@@ -14,11 +14,13 @@ from params import Params
 
 class SeeCamCalibrationNode():
     
-    def __init__(self,chessboard_w,chessboard_h,chessboard_sqr_size):
+    def __init__(self,chessboard_w,chessboard_h,chessboard_sqr_size,img_w,img_h):
         self.node = None
         self._chessboard_w = chessboard_w
         self._chessboard_h = chessboard_h
         self._chessboard_sqr_size = chessboard_sqr_size
+        self._img_w = img_w
+        self._img_h = img_h
         
         
     def initialize_calibration_node(self,cam_index):
@@ -39,7 +41,9 @@ class SeeCamCalibrationNode():
                                         checkerboard_flags = checkerboard_flags,
                                         max_chessboard_speed = -1.0,
                                         queue_size = 1,
-                                        cam_index = cam_index)
+                                        cam_index = cam_index,
+                                        img_w = self._img_w,
+                                        img_h = self._img_h)
             
     def generate_frames(self):
         try:
@@ -86,7 +90,7 @@ class WebApp(CamContext,Params):
         # variable to keep track and update table
         self.data = self.update_cam_details()
         
-        self.calib_node = SeeCamCalibrationNode(self.args.chessboard_w,self.args.chessboard_h,self.args.chessboard_sqr_size)
+        self.calib_node = SeeCamCalibrationNode(self.args.chessboard_w,self.args.chessboard_h,self.args.chessboard_sqr_size,self.img_w,self.img_h)
         
         self.calibrated = None
         
