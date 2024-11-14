@@ -9,19 +9,26 @@ import signal
 
 from CamContext import *
 from CalibrationNode import *
+from params import Params
 
 
-class SeeCamCalibrationNode:
+class SeeCamCalibrationNode():
     
-    def __init__(self):
+    def __init__(self,chessboard_w,chessboard_h,chessboard_sqr_size):
         self.node = None
+        self._chessboard_w = chessboard_w
+        self._chessboard_h = chessboard_h
+        self._chessboard_sqr_size = chessboard_sqr_size
+        
         
     def initialize_calibration_node(self,cam_index):
         if self.node is not None:
             self.reset_calibration_node()
         
         if self.node is None:
-            boards = [ChessboardInfo(6,4,0.04)]
+            # boards = [ChessboardInfo(6,4,0.04)]
+            # boards = [ChessboardInfo(self.args.chessboard_w,self.args.chessboard_h,self.args.chessboard_sqr_size)]
+            boards = [ChessboardInfo(self._chessboard_w,self._chessboard_h,self._chessboard_sqr_size)]
             calib_flags = 0
             fisheye_calib_flags = 0
             checkerboard_flags = cv2.CALIB_CB_FAST_CHECK
@@ -53,9 +60,12 @@ class SeeCamCalibrationNode:
         self.node = None
 
 
-class WebApp(CamContext):
+class WebApp(CamContext,Params):
     
     def __init__(self):
+        
+        Params.__init__(self)
+        
         self.app = Flask(__name__)
         self.setup_routes()
         
@@ -76,7 +86,7 @@ class WebApp(CamContext):
         # variable to keep track and update table
         self.data = self.update_cam_details()
         
-        self.calib_node = SeeCamCalibrationNode()
+        self.calib_node = SeeCamCalibrationNode(self.args.chessboard_w,self.args.chessboard_h,self.args.chessboard_sqr_size)
         
         self.calibrated = None
         
