@@ -193,7 +193,7 @@ class OpenCVCalibrationNode(CalibrationNode):
                     cv2.line(display,(int(width+lo*100),self.y(i)+20),(int(width+hi*100),self.y(i)+20),color,4)
         
         else:
-            self.putText(display,"lin.",(width,self.y(0)))
+            self.putText(display,"RError",(width,self.y(0)))
             linerror = drawable.linear_error
             if linerror is None or linerror < 0:
                 msg = "?"
