@@ -1,4 +1,6 @@
 from Calibrator import *
+from calib_logger import CalibLogger
+
 import pickle
 import random
 from io import BytesIO
@@ -16,6 +18,8 @@ class MonoCalibrator(Calibrator):
     
     def __init__(self,*args,**kwargs):
         super(MonoCalibrator,self).__init__(*args,**kwargs)
+        self.logger = CalibLogger().get_logger()
+        
         
     def cal(self,images):
         """
@@ -55,7 +59,8 @@ class MonoCalibrator(Calibrator):
         intrinsics_in = numpy.eye(3,dtype = numpy.float64)
         
         if self.camera_model == CAMERA_MODEL.PINHOLE:
-            print("mone pinhole calibration ..")
+            # print("mono pinhole calibration ..")
+            self.logger.info("######### Mono Pinhole Calibration #########")
             reproj_err , self.intrinsics , dist_coeffs , rvecs , tvecs = cv2.calibrateCamera(
                 opts,
                 ipts,
@@ -71,7 +76,8 @@ class MonoCalibrator(Calibrator):
             else:
                 self.distortion = dist_coeffs.flat[:5].reshape(-1,1) # plumb bob
         elif self.camera_model == CAMERA_MODEL.FISHEYE:
-            print("mono fisheye calibration ..")
+            # print("mono fisheye calibration ..")
+            self.logger.info("######### Mono Fisheye Calibration #########")
             # WARNING : cv2.fisheye.calibrate wants float64 points
             ipts64 = numpy.asarray(ipts,dtype = numpy.float64)
             ipts = ipts64
@@ -254,7 +260,8 @@ class MonoCalibrator(Calibrator):
                 if self.is_good_sample(params,corners,self.last_frame_corners):
                     self.db.append((params,gray))
                     self.good_corners.append((corners,board))
-                    print(("*** Added sample %d , p_x = %.3f , p_y = %.3f , p_size = %.3f , skew = %.3f"%tuple([len(self.db)]+params)))
+                    # print(("*** Added sample %d , p_x = %.3f , p_y = %.3f , p_size = %.3f , skew = %.3f"%tuple([len(self.db)]+params)))
+                    self.logger.info("### Added sample %d , p_x = %.3f , p_y = %.3f , p_size = %.3f , skew = %.3f ###"%tuple([len(self.db)]+params))
                 
         self.last_frame_corners = corners
         
@@ -267,7 +274,8 @@ class MonoCalibrator(Calibrator):
     
     def do_calibration(self,dump = False):
         if not self.good_corners:
-            print("******** Collecting corners for all images! ************")
+            # print("******** Collecting corners for all images! ************")
+            self.logger.info("******** Collecting corners for all images! ************")
             images = [i for (p,i) in self.db]
             self.good_corners = self.collect_corners(images)
         self.size = (self.db[0][1].shape[1],self.db[0][1].shape[0])

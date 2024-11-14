@@ -1,6 +1,9 @@
 from utils import *
 from MonoCalibrator import *
+from calib_logger import CalibLogger
+
 import os
+
 
 class CalibrationNode():
     def __init__(self,
@@ -93,6 +96,8 @@ class OpenCVCalibrationNode(CalibrationNode):
         self.CALIBRATE_BUTTON_Y_MIN = 305
         self.CALIBRATE_BUTTON_Y_MAX = 411
         
+        self.logger = CalibLogger().get_logger()
+        
     def spin(self):
         
         while True:
@@ -125,7 +130,8 @@ class OpenCVCalibrationNode(CalibrationNode):
     def on_mouse(self,x,y):
         if self.CALIBRATE_BUTTON_X_MIN <= x <= self.CALIBRATE_BUTTON_X_MAX and self.CALIBRATE_BUTTON_Y_MIN <= y <= self.CALIBRATE_BUTTON_Y_MAX:
             if self.c.goodenough:
-                print("***** Calibrating ********")
+                # print("***** Calibrating ********")
+                self.logger.info("########## CALIBRATING ##########")
                 self.c.do_calibration()
                 self.buttons(self._last_display)
                 self.queue_display.put(self._last_display)

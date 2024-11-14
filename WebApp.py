@@ -83,6 +83,7 @@ class WebApp(CamContext,Params):
             print("############### NO CAMERAS CONNECTED ###############")
             sys.exit()
             
+        self.logger = CalibLogger().get_logger()
         
         # json path
         self.json_path = "CameraStartUpJson.json"
@@ -247,7 +248,10 @@ class WebApp(CamContext,Params):
         with open(file_name,"wb") as res:
             pickle.dump(self.calibration_result,res)
             
-        print(f"===== Calibration Result Saved as {file_name}.pkl =======")
+        # print(f"===== Calibration Result Saved as {file_name}.pkl =======")
+        
+        self.logger.info(f"============ Calibration Result Saved as {file_name}.pkl ============")
+        
         
     def shutdown_server(self):
         """
